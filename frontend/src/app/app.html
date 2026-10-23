@@ -1,0 +1,72 @@
+<header class="site-header">
+  <a href="/" class="site-brand">
+    Portfolio
+    <small>Financial management</small>
+  </a>
+  @if (user(); as currentUser) {
+    <nav aria-label="Main navigation">
+      <button (click)="view.set('workspace')" [class.active]="view() === 'workspace'">Accounts & portfolios</button>
+      <button (click)="view.set('catalog')" [class.active]="view() === 'catalog'">Investment catalog</button>
+    </nav>
+    <span class="signed-in">{{ currentUser.email }}</span>
+    <button (click)="logout()" [disabled]="busy()">Sign out</button>
+  }
+</header>
+@if (!ready()) {
+  <main class="login-card">
+    <p role="status">Loading your workspace…</p>
+  </main>
+}
+@else if (user(); as currentUser) {
+  @if (message()) {
+    <p class="session-notice" role="alert">{{ message() }}</p>
+  }
+  @if (view() === 'workspace') {
+    <app-accounts />
+  }
+  @else {
+    <app-catalog [isAdmin]="currentUser.roles.includes('Admin')" />
+  }
+}
+@else {
+  <main class="login-card">
+    <p class="eyebrow">YOUR FINANCIAL WORKSPACE</p>
+    <h1>{{ registration ? 'Create your login' : 'Welcome back' }}</h1>
+    <p>Manage your accounts, portfolios, and investment activity.</p>
+    <form (ngSubmit)="submit()" #loginForm="ngForm">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        [(ngModel)]="email"
+        required
+        email
+        maxlength="256"
+        autocomplete="username"
+        [disabled]="busy()"
+      >
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        [(ngModel)]="password"
+        required
+        maxlength="128"
+        [autocomplete]="registration ? 'new-password' : 'current-password'"
+        [disabled]="busy()"
+      >
+      @if (registration) {
+        <p class="muted">Use 12–128 characters, including uppercase, lowercase, a number, and a special character.</p>
+      }
+      <p role="status">{{ message() }}</p>
+      <button class="primary" type="submit" [disabled]="busy() || loginForm.invalid">
+        {{ busy() ? 'Please wait…' : registration ? 'Register' : 'Log in' }}
+      </button>
+      <button type="button" (click)="registration = !registration; message.set(''); password = ''" [disabled]="busy()">
+        {{ registration ? 'Back to login' : 'Create a login' }}
+      </button>
+    </form>
+  </main>
+}

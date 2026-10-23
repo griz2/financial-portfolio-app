@@ -1,0 +1,36 @@
+@host = https://localhost:7059
+@email = replace-with-your-email@example.test
+@password = replace-with-a-strong-password
+@csrfToken = paste-the-token-from-the-csrf-response
+
+###
+GET {{host}}/api/auth/csrf
+Accept: application/json
+
+###
+POST {{host}}/api/auth/register
+Content-Type: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+POST {{host}}/api/auth/login
+Content-Type: application/json
+X-XSRF-TOKEN: {{csrfToken}}
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+GET {{host}}/api/auth/me
+Accept: application/json
+
+###
+POST {{host}}/api/auth/logout
+X-XSRF-TOKEN: {{csrfToken}}

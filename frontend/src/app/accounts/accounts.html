@@ -1,0 +1,142 @@
+<main>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">YOUR FINANCIAL WORKSPACE</p>
+      <h1>Financial accounts</h1>
+      <p class="intro">A place for your cash today, and your investment plans tomorrow.</p>
+    </div>
+  </div>
+  @if (dashboardLoading()) {
+    <p role="status">Loading account summary…</p>
+  }
+  @else if (dashboardError()) {
+    <p class="error" role="alert">{{ dashboardError() }}</p>
+    <button type="button" (click)="refreshDashboard()">Retry account summary</button>
+  }
+  @else {
+    <section class="summary" aria-label="Account summary">
+      <div>
+        <p>Total cash balance</p>
+        <strong>{{ dashboard().cashBalance | currency:'USD' }}</strong>
+        <span>Across your financial accounts</span>
+      </div>
+      <div class="account-count">
+        <p>Accounts</p>
+        <strong>{{ accounts().length }}</strong>
+        <span>Portfolios: {{ dashboard().portfolioCount }}</span>
+      </div>
+      <div>
+        <p>Investment value</p>
+        <strong>{{ dashboard().investmentValue | currency:'USD' }}</strong>
+        <span>Manual catalog prices</span>
+      </div>
+      <div>
+        <p>Total value</p>
+        <strong>{{ dashboard().totalValue | currency:'USD' }}</strong>
+        <span>Cash plus investments</span>
+      </div>
+    </section>
+  }
+  <div class="workspace">
+    <section class="panel form-panel" aria-labelledby="form-heading">
+      <p class="eyebrow">{{ editingId() === null ? 'GET STARTED' : 'ACCOUNT DETAILS' }}</p>
+      <h2 id="form-heading">{{ editingId() === null ? 'Create an account' : 'Rename your account' }}</h2>
+      <p class="muted">
+        {{ editingId() === null ? 'Give your account a name that matches its purpose.' : 'Update the name without changing its balance.' }}
+      </p>
+      <form (ngSubmit)="saveAccount()" #accountForm="ngForm">
+        <label for="account-name">Account name</label>
+        <input
+          id="account-name"
+          name="accountName"
+          [(ngModel)]="accountName"
+          required
+          maxlength="100"
+          placeholder="e.g. Long-term savings"
+          [disabled]="saving()"
+          aria-describedby="name-help form-error"
+        >
+        <p id="name-help" class="field-help">Up to 100 characters.</p>
+        @if (formError()) {
+          <p id="form-error" class="error" role="alert">{{ formError() }}</p>
+        }
+        <div class="form-actions">
+          <button class="primary" type="submit" [disabled]="saving() || loading() || accountForm.invalid || !accountName.trim()">
+            {{ saving() ? 'Saving…' : editingId() === null ? 'Create account' : 'Save changes' }}
+          </button>
+          @if (editingId() !== null) {
+            <button type="button" class="secondary" (click)="cancelEdit()" [disabled]="saving()">Cancel</button>
+          }
+        </div>
+      </form>
+    </section>
+    <section class="panel list-panel" aria-labelledby="list-heading" [attr.aria-busy]="loading()">
+      <div class="list-heading">
+        <div>
+          <h2 id="list-heading">Your accounts</h2>
+          <p class="muted">Keep your financial goals organized.</p>
+        </div>
+        <button type="button" class="secondary" (click)="loadAccounts()" [disabled]="loading() || saving()">
+          Refresh
+        </button>
+      </div>
+      <div aria-live="polite">
+        @if (successMessage()) {
+          <p class="success">{{ successMessage() }}</p>
+        }
+      </div>
+      @if (loading()) {
+        <p class="empty-state" role="status">Loading your accounts…</p>
+      }
+      @else if (loadError()) {
+        <div class="empty-state">
+          <p class="error" role="alert">{{ loadError() }}</p>
+          <button type="button" class="secondary" (click)="loadAccounts()">Try again</button>
+        </div>
+      }
+      @else if (accounts().length === 0) {
+        <div class="empty-state">
+          <span class="empty-symbol" aria-hidden="true">＋</span>
+          <h3>Your first account starts here</h3>
+          <p>
+            Create an account using the form.
+            <br>
+            Your saved accounts will appear in this space.
+          </p>
+        </div>
+      }
+      @else {
+        <ul class="account-list">
+          @for (account of accounts(); track account.id) {
+            <li>
+              <span class="account-icon" aria-hidden="true">{{ account.name.charAt(0).toUpperCase() }}</span>
+              <div class="account-info">
+                <h3>{{ account.name }}</h3>
+                <span>Account #{{ account.id }}</span>
+              </div>
+              <div class="account-balance">
+                <strong>{{ account.cashBalance | currency:'USD' }}</strong>
+                <span>Cash balance</span>
+              </div>
+              <button type="button" class="secondary" (click)="selectedId.set(account.id)" [disabled]="saving()">
+                Open {{ account.name }}
+              </button>
+              <button
+                type="button"
+                class="edit-button"
+                (click)="editAccount(account)"
+                [disabled]="saving()"
+                [attr.aria-label]="'Rename ' + account.name"
+              >
+                Rename
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+  @for (selected of selectedAccounts; track selected.id) {
+    <app-workspace [account]="selected" (changed)="loadAccounts()" />
+  }
+</main>

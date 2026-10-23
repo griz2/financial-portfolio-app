@@ -1,0 +1,261 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #172d38;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 15px;
+}
+
+button, input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+button, input, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid #299e85;
+  outline-offset: 4px;
+}
+
+.site-header {
+  padding: 20px 4%;
+  background: white;
+  border-bottom: 1px solid #dce4e7;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.site-brand {
+  color: #173c36;
+  font-size: 23px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-brand small {
+  font-size: 12px;
+  color: #637782;
+  font-weight: 400;
+  margin-left: 10px;
+}
+
+.site-header nav {
+  display: flex;
+  gap: 8px;
+}
+
+.site-header .active {
+  background: #e8f3ed;
+  border-color: #36795f;
+}
+
+.signed-in {
+  margin-left: auto;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.login-card {
+  margin: 60px auto;
+  max-width: 470px;
+  padding: 32px;
+  background: white;
+  border: 1px solid #dce4e7;
+  border-radius: 14px;
+}
+
+.login-card form {
+  display: grid;
+  gap: 12px;
+}
+
+.login-card label, .form-grid label, .inline-controls label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+input, select {
+  padding: 11px;
+  border: 1px solid #bdcbd1;
+  border-radius: 6px;
+  color: #172d38;
+  background: white;
+  font: inherit;
+  width: 100%;
+  min-width: 0;
+}
+
+button {
+  border: 1px solid #c5d2d8;
+  border-radius: 6px;
+  padding: 10px 14px;
+  color: #244f40;
+  background: white;
+  font-size: 13px;
+}
+
+button.primary {
+  color: white;
+  background: #226b56;
+  border-color: #226b56;
+}
+
+.muted {
+  color: #637782;
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+.feature-page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 32px 24px;
+}
+
+.account-workspace {
+  margin-top: 36px;
+  border-top: 1px solid #d5e0e2;
+  padding-top: 28px;
+}
+
+.feature-panel {
+  margin: 20px 0;
+  padding: 24px;
+  background: white;
+  border: 1px solid #dce4e7;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.feature-panel h3 {
+  margin: 0 0 16px;
+  font-size: 17px;
+}
+
+.feature-panel h3:not(:first-child) {
+  margin-top: 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.form-grid button {
+  min-height: 40px;
+}
+
+.form-grid > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feature-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.inline-controls, .section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: end;
+  margin: 16px 0;
+}
+
+.section-heading {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-heading h3 {
+  margin: 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+th {
+  color: #4d6874;
+  background: #f1f6f4;
+  font-weight: 600;
+}
+
+th, td {
+  border-bottom: 1px solid #e0e8eb;
+  padding: 13px 10px;
+  white-space: nowrap;
+}
+
+.notice {
+  color: #245b48;
+  overflow-wrap: anywhere;
+}
+
+.error, .session-notice {
+  color: #a22d38;
+}
+
+.session-notice {
+  margin: 20px 4%;
+}
+
+@media (max-width: 700px) {
+  .feature-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .site-header {
+    gap: 12px;
+  }
+
+  .signed-in {
+    margin-left: 0;
+  }
+
+  .site-brand small {
+    display: none;
+  }
+
+  .login-card {
+    margin: 30px 16px;
+  }
+
+  .feature-panel {
+    padding: 18px;
+  }
+
+}

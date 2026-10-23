@@ -1,0 +1,185 @@
+<section class="account-workspace" aria-label="Selected account workspace">
+  <h2>{{ account.name }} — portfolios & activity</h2>
+  <p>
+    Available cash:
+    <strong>{{ account.cashBalance | currency:'USD' }}</strong>
+  </p>
+  <p role="status" class="notice">{{ message() }}</p>
+  <div class="feature-columns">
+    <section class="feature-panel">
+      <h3>Cash transaction</h3>
+      <form class="form-grid" (ngSubmit)="saveCash()" #cashForm="ngForm">
+        <label>
+          Cash transaction type
+          <select name="cashType" [(ngModel)]="cashType" [disabled]="busy()">
+            <option>Deposit</option>
+            <option>Withdrawal</option>
+          </select>
+        </label>
+        <label>
+          Amount (USD)
+          <input name="amount" type="number" [(ngModel)]="amount" min="0.01" step="0.01" required [disabled]="busy()">
+        </label>
+        <button class="primary" [disabled]="busy() || cashForm.invalid">
+          Record cash transaction
+        </button>
+      </form>
+    </section>
+    <section class="feature-panel">
+      <h3>{{ editingPortfolioId === null ? 'Create portfolio' : 'Rename portfolio' }}</h3>
+      <form class="form-grid" (ngSubmit)="savePortfolio()" #portfolioForm="ngForm">
+        <label>
+          Portfolio name
+          <input name="portfolioName" [(ngModel)]="portfolioName" required maxlength="100" [disabled]="busy()">
+        </label>
+        <div>
+          <button class="primary" [disabled]="busy() || portfolioForm.invalid || !portfolioName.trim()">
+            Save portfolio
+          </button>
+          <button type="button" (click)="clearPortfolioForm()" [disabled]="busy()">Clear</button>
+        </div>
+      </form>
+    </section>
+  </div>
+  <section class="feature-panel">
+    <div class="section-heading">
+      <h3>Investment portfolio</h3>
+      <button (click)="loadPortfolios()" [disabled]="busy() || loading() || holdingsLoading()">
+        Refresh portfolios
+      </button>
+    </div>
+    @if (loading()) {
+      <p role="status">Loading portfolios…</p>
+    }
+    @else if (portfoliosError()) {
+      <p class="error" role="alert">{{ portfoliosError() }}</p>
+    }
+    @else if (portfolios().length === 0) {
+      <p>Create your first portfolio to group investments.</p>
+    }
+    @else {
+      <div class="inline-controls">
+        <label>
+          Select portfolio
+          <select
+            name="portfolioSelection"
+            [(ngModel)]="portfolioId"
+            (ngModelChange)="clearPortfolioForm(); loadHoldings()"
+            [disabled]="busy() || holdingsLoading()"
+          >
+            @for (portfolio of portfolios(); track portfolio.id) {
+              <option [ngValue]="portfolio.id">{{ portfolio.name }}</option>
+            }
+          </select>
+        </label>
+        <button (click)="editPortfolio()" [disabled]="busy()">Rename selected portfolio</button>
+      </div>
+      <h3>Record a trade</h3>
+      <p class="muted">Trades use the catalog's current manual price. They do not place real market orders.</p>
+      <form class="form-grid" (ngSubmit)="saveTrade()" #tradeForm="ngForm">
+        <label>
+          Trade type
+          <select name="tradeType" [(ngModel)]="tradeType" [disabled]="busy()">
+            <option>Buy</option>
+            <option>Sell</option>
+          </select>
+        </label>
+        <label>
+          Investment
+          <select name="investmentId" [(ngModel)]="investmentId" required [disabled]="busy()">
+            <option [ngValue]="null">Choose investment</option>
+            @for (investment of investments(); track investment.id) {
+              <option [ngValue]="investment.id">
+                {{ investment.symbol }} — {{ investment.currentPrice | currency:'USD':'symbol':'1.2-6' }}
+              </option>
+            }
+          </select>
+        </label>
+        <label>
+          Quantity
+          <input name="quantity" type="number" [(ngModel)]="quantity" min="0.000001" step="0.000001" required [disabled]="busy()">
+        </label>
+        <button class="primary" [disabled]="busy() || tradeForm.invalid">Record trade</button>
+      </form>
+      <h3>Holdings</h3>
+      @if (holdingsLoading()) {
+        <p role="status">Loading holdings…</p>
+      }
+      @else if (holdingsError()) {
+        <p class="error" role="alert">{{ holdingsError() }}</p>
+        <button (click)="loadHoldings()">Retry holdings</button>
+      }
+      @else if (holdings().length === 0) {
+        <p>No current holdings in this portfolio.</p>
+      }
+      @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Investment</th>
+                <th>Quantity</th>
+                <th>Manual price</th>
+                <th>Current value</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (holding of holdings(); track holding.investmentId) {
+                <tr>
+                  <td>{{ holding.symbol }}</td>
+                  <td>{{ holding.quantity | number:'1.0-6' }}</td>
+                  <td>{{ holding.currentPrice | currency:'USD':'symbol':'1.2-6' }}</td>
+                  <td>{{ holding.marketValue | currency:'USD' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </section>
+  <section class="feature-panel">
+    <h3>Account financial history</h3>
+    <p class="muted">Transactions are listed newest first.</p>
+    <button (click)="loadHistory()" [disabled]="historyLoading()">Refresh history</button>
+    @if (historyLoading()) {
+      <p role="status">Loading history…</p>
+    }
+    @else if (historyError()) {
+      <p class="error" role="alert">{{ historyError() }}</p>
+    }
+    @else if (history().length === 0) {
+      <p>No transactions recorded yet.</p>
+    }
+    @else {
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Recorded</th>
+              <th>Type</th>
+              <th>Investment</th>
+              <th>Quantity</th>
+              <th>Execution price</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transaction of history(); track transaction.id) {
+              <tr>
+                <td>{{ transaction.recordedAt | date:'medium' }}</td>
+                <td>{{ transaction.type }}</td>
+                <td>{{ transaction.symbol ?? '—' }}</td>
+                <td>{{ transaction.quantity === null ? '—' : (transaction.quantity | number:'1.0-6') }}</td>
+                <td>
+                  {{ transaction.unitPrice === null ? '—' : (transaction.unitPrice | currency:'USD':'symbol':'1.2-6') }}
+                </td>
+                <td>{{ transaction.grossAmount | currency:'USD' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>
